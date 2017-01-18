@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="MobileOptimized" content="320"/>
+
+    <script type="text/javascript" src="http://libs.useso.com/js/jquery/1.7.2/jquery.min.js"></script>
+
+    <style>
+        body{
+            font-size: 12px;
+        }
+        .signature{
+            margin:0px 5px;
+        }
+    </style>
+</head>
+</head>
+<body>
+<div id="content"><img id="code" src="" width="300px" height="300px"/></div>
+<div id="concat_list"></div>
+</body>
+<script>
+    function initCode(){
+        $.get("/queryCode",function (data) {
+            $("#code").attr("src",data);
+            listenerScan();
+        });
+    }
+
+    function listenerScan(){
+        $.get("/listenerScan",function(data){
+            console.log(data);
+            if(data.indexOf("window.code=201") == -1){
+                setTimeout("listenerScan()",2000);
+                return;
+            }
+            $("#code").attr("src",getValue(data));
+
+            listenerConfim();
+        });
+    }
+
+    function listenerConfim(){
+        $.get("/listenerConfim",function(data){
+            console.log(data);
+            if(data.indexOf("window.code=200") == -1){
+                setTimeout("listenerConfim()",2000);
+                return;
+            }
+            validateTicket();
+        });
+    }
+
+    function validateTicket(){
+        $.get("/validateTicket",function(data){
+            console.log(data);
+            if(data.indexOf("pass_ticket") == -1){
+                setTimeout("validateTicket()",2000);
+                return;
+            }
+            getConcat();
+        });
+    }
+
+    function getConcat(){
+        $.get("/getConcat",function(data){
+            console.log(data);
+        });
+    }
+
+    function getCode(data){
+        return data.split(";")[0].split("=")[1];
+    }
+    function getValue(data){
+        return data.split("\'")[1];
+    }
+
+    function getValue2(data){
+        return data.split("\"")[1];
+    }
+
+    var G_user;
+    function view(){
+        $("#content").hide();
+        var temp = '<div style="height:30px;width: 100%;line-height: 30px;"><img src="" style="margin:0px 5px;"/><a class="name"></a><a class="signature" ></a></div>';
+        $.each(G_user.concats,function(index,item){
+            var curr = $(temp);
+            curr.find("img").attr("src","https://wx2.qq.com"+item.HeadImgUrl);
+            curr.find(".name").html(item.RemarkName?item.RemarkName:item.NickName);
+            curr.find(".signature").html(item.AttrStatus>0?item.Signature:"");
+            $("#concat_list").append(curr);
+        });
+    }
+
+    function init(){
+        $.get("/current",function(user){
+            console.log(user);
+            if(!user.concats){
+                initCode();
+                return;
+            }
+            G_user = user;
+            view();
+        });
+    }
+
+    init();
+</script>
+</html>
