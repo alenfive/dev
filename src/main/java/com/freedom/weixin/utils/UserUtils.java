@@ -19,4 +19,7 @@ public class UserUtils {
         }
         return user;
     }
+    public static void clear(HttpSession httpSession){
+        httpSession.removeAttribute("user");
+    }
 }

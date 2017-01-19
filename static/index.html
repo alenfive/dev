@@ -7,13 +7,24 @@
     <meta name="MobileOptimized" content="320"/>
 
     <script type="text/javascript" src="http://libs.useso.com/js/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://yckart.github.io/jquery.base64.js/jquery.base64.js"></script>
+    <link rel="stylesheet" href="//res.wx.qq.com/a/wx_fed/webwx/res/static/css/f97670b1601457f4e7155a8f60c019b3.css"/></head>
 
     <style>
         body{
             font-size: 12px;
+            background-attachment:fixed;
         }
         .signature{
             margin:0px 5px;
+            color: gray;
+        }
+        #concat_list>div>img {
+            width: 30px;
+            float: left;
+        }
+        #concat_list>div {
+            margin: 5px 0px;
         }
     </style>
 </head>
@@ -23,17 +34,24 @@
 <div id="concat_list"></div>
 </body>
 <script>
+    $.base64.utf8encode = true;
     function initCode(){
         $.get("/queryCode",function (data) {
             $("#code").attr("src",data);
             listenerScan();
         });
     }
-
+    var count = 1;
     function listenerScan(){
         $.get("/listenerScan",function(data){
             console.log(data);
             if(data.indexOf("window.code=201") == -1){
+                count ++;
+                if(count == 30){
+                    count = 1;
+                    initCode();
+                    return;
+                }
                 setTimeout("listenerScan()",2000);
                 return;
             }
@@ -61,13 +79,40 @@
                 setTimeout("validateTicket()",2000);
                 return;
             }
+            webwxinit();
             getConcat();
+
         });
+    }
+
+    function webwxinit(){
+        $.get("/webwxinit",function(data){
+            conso.log(data);
+        });
+    }
+
+    function listenerMsg(){
+        $.get("/listenerMsg",function(data){
+            console.log(data);
+            if(data.indexOf("retcode:\"0\"") == -1){
+                return;
+            }
+            if(data.indexOf("selector:\"0\"") != -1){
+                return;
+            }
+
+            getMsg();
+        });
+    }
+
+    function getMsg(){
+
     }
 
     function getConcat(){
         $.get("/getConcat",function(data){
             console.log(data);
+            init();
         });
     }
 
@@ -87,12 +132,24 @@
         $("#content").hide();
         var temp = '<div style="height:30px;width: 100%;line-height: 30px;"><img src="" style="margin:0px 5px;"/><a class="name"></a><a class="signature" ></a></div>';
         $.each(G_user.concats,function(index,item){
+            if(item.AttrStatus > 0)return;
             var curr = $(temp);
-            curr.find("img").attr("src","https://wx2.qq.com"+item.HeadImgUrl);
+            curr.find("img").attr("src","/headImg?headImg="+$.base64.btoa(item.HeadImgUrl));
             curr.find(".name").html(item.RemarkName?item.RemarkName:item.NickName);
-            curr.find(".signature").html(item.AttrStatus>0?item.Signature:"");
+            curr.find(".signature").html(item.AttrStatus>0 && item.Signature.length>0?"("+item.Signature+")":"");
             $("#concat_list").append(curr);
         });
+
+        $.each(G_user.concats,function(index,item){
+            if(item.VerifyFlag == 0)return;
+            var curr = $(temp);
+            curr.find("img").attr("src","/headImg?headImg="+$.base64.btoa(item.HeadImgUrl));
+            curr.find(".name").html(item.RemarkName?item.RemarkName:item.NickName);
+            curr.find(".signature").html(item.AttrStatus>0 && item.Signature.length>0?"("+item.Signature+")":"");
+            $("#concat_list").append(curr);
+        });
+
+        setInterval("listenerMsg()",2000);
     }
 
     function init(){

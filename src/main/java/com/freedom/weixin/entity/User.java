@@ -2,6 +2,7 @@ package com.freedom.weixin.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
 
 public class User {
     @JsonIgnore
-    private HttpClient httpClient = new HttpClient();
+    private HttpClient httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
     private String uuid;
     private String ticketUrl;
     private String skey;
@@ -20,6 +21,16 @@ public class User {
     private String wxuin;
     private String pass_ticket;
     private List<Concat> concats;
+    private Concat concat;
+    private List<SyncKey> syncKeys;
+
+    public List<SyncKey> getSyncKeys() {
+        return syncKeys;
+    }
+
+    public void setSyncKeys(List<SyncKey> syncKeys) {
+        this.syncKeys = syncKeys;
+    }
 
     public String getUuid() {
         return uuid;
@@ -27,14 +38,6 @@ public class User {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
-    }
-
-    public HttpClient getHttpClient() {
-        return httpClient;
-    }
-
-    public void setHttpClient(HttpClient httpClient) {
-        this.httpClient = httpClient;
     }
 
     public String getTicketUrl() {
@@ -83,5 +86,21 @@ public class User {
 
     public void setConcats(List<Concat> concats) {
         this.concats = concats;
+    }
+
+    public HttpClient getHttpClient() {
+        return httpClient;
+    }
+
+    public void setHttpClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
+    }
+
+    public Concat getConcat() {
+        return concat;
+    }
+
+    public void setConcat(Concat concat) {
+        this.concat = concat;
     }
 }

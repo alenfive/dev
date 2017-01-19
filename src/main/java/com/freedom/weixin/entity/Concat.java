@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Concat implements Serializable {
     @JsonProperty(value = "Uin")
-    private Integer Uin;
+    private Long Uin;
     @JsonProperty(value = "UserName")
     private String UserName;
     @JsonProperty(value = "NickName")
@@ -73,12 +73,32 @@ public class Concat implements Serializable {
     private String EncryChatRoomId;
     @JsonProperty(value = "IsOwner")
     private String IsOwner;
+    @JsonProperty(value = "WebWxPluginSwitch")
+    private Long WebWxPluginSwitch;
+    @JsonProperty(value = "HeadImgFlag")
+    private Long HeadImgFlag;
 
-    public Integer getUin() {
+    public Long getHeadImgFlag() {
+        return HeadImgFlag;
+    }
+
+    public void setHeadImgFlag(Long headImgFlag) {
+        HeadImgFlag = headImgFlag;
+    }
+
+    public Long getWebWxPluginSwitch() {
+        return WebWxPluginSwitch;
+    }
+
+    public void setWebWxPluginSwitch(Long webWxPluginSwitch) {
+        WebWxPluginSwitch = webWxPluginSwitch;
+    }
+
+    public Long getUin() {
         return Uin;
     }
 
-    public void setUin(Integer uin) {
+    public void setUin(Long uin) {
         Uin = uin;
     }
 
